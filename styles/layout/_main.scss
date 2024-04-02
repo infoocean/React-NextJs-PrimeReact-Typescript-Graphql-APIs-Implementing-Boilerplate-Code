@@ -25,3 +25,12 @@ a {
 .layout-wrapper {
     min-height: 100vh;
 }
+
+.verifycss input.p-inputtext.p-component.verifydigit.verifydigit {
+    width: 38px !important;
+  }
+
+  .gridcss {
+    display: flex;
+    justify-content: space-evenly;
+  }
