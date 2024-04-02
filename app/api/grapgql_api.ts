@@ -1,5 +1,5 @@
 import { setContext } from '@apollo/client/link/context';
-import { ApolloClient, InMemoryCache, createHttpLink,  split } from '@apollo/client';
+import { ApolloClient, InMemoryCache, concat, createHttpLink,  split } from '@apollo/client';
 import { createClient } from 'graphql-ws';
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from '@apollo/client/utilities';
@@ -17,7 +17,7 @@ const wsLink = new GraphQLWsLink(
 );
 
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('auth_token');
+  const token = localStorage.getItem('authorization_token');
   return {
     headers: {
       ...headers,
@@ -25,6 +25,8 @@ const authLink = setContext((_, { headers }) => {
     },
   };
 });
+
+const httpAuthLink = concat(authLink, httpLink);
 
 const splitLink = split(
   ({ query }) => {
@@ -35,7 +37,7 @@ const splitLink = split(
     );
   },
   wsLink, // web socket connection for subscriptions
-  httpLink // http connection for query and mutation
+  httpAuthLink // http connection for query and mutation
 );
 
 // setting up apollo client with the server http and websocket links

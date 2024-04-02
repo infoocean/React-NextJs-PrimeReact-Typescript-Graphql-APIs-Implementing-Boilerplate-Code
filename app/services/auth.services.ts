@@ -1,5 +1,7 @@
+import { LoginFormValues, verifyOtpFormValues } from "@/types/auth";
 import client from "../api/grapgql_api";
 import { GET_AUTHORIZATION_TOKEN } from "../grapgql/grapgql_query/auth_query";
+import { FORGOT_PASSWORD, LOGIN_MUTATION, VERIFY_OTP } from "../grapgql/grapgql_mutation/auth_mutation";
 
 const get_authorization_token = async () => {
   try {
@@ -11,9 +13,61 @@ const get_authorization_token = async () => {
     }
   } catch (error) {
     console.error("Error fetching authorization token:", error);
-    // Optionally, you can throw the error again to propagate it to the caller
-    // window.location.replace('/auth/error');
+  }
+};
+export { get_authorization_token };
+
+export const handleLogin = async (loginInputData: LoginFormValues) => {
+  try {
+    const { data } = await client.mutate({
+      mutation: LOGIN_MUTATION,
+      variables: {
+        email: loginInputData?.email,
+        password: loginInputData?.password,
+      },
+    });
+    if (data && data.login && data.login.token) {
+      return { success: true, data: data };
+    }
+  } catch (error) {
+    return { success: false, message: "An error occurred while logging in", error: error };
   }
 };
 
-export { get_authorization_token };
+
+export const handleVerifyOtp = async (verifyOtpInputData: verifyOtpFormValues) => {
+  try {
+    const { data } = await client.mutate({
+      mutation: VERIFY_OTP,
+      variables: {
+        email: verifyOtpInputData?.email,
+        otp: verifyOtpInputData?.otp,
+      },
+    });
+    if (data) {
+      return { success: true, data: data };
+    }
+  } catch (error) {
+    return { success: false, message: "An error occurred while verify otp in", error: error };
+  }
+};
+
+
+//forgot password and resend otp working with this function
+export const forgotPassword = async (email: string) => {
+  try {
+    const { data } = await client.mutate({
+      mutation: FORGOT_PASSWORD,
+      variables: {
+        userEmail: email,
+      },
+    });
+    if (data) {
+      return { success: true, data: data };
+    }
+  } catch (error) {
+    return { success: false, message: "An error occurred while resend otp in", error: error };
+  }
+};
+
+

@@ -7,7 +7,7 @@ export const CREATE_USER = gql`
     $email: String!,
     $phone: String!,
     $password: String!,
-    $role_id: Float!
+    $role_id: Int!
   ) {
     createUser(
       createUserData: {

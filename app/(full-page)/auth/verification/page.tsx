@@ -1,145 +1,93 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useContext, useState } from "react";
-import { Checkbox } from "primereact/checkbox";
-import { Button } from "primereact/button";
-import { Password } from "primereact/password";
+import React, { useContext, useRef } from "react";
 import { LayoutContext } from "../../../../layout/context/layoutcontext";
-import { InputText } from "primereact/inputtext";
 import { classNames } from "primereact/utils";
-// import AuthForm from "@/demo/components/AuthForm";
-import AppTopbar from "@/layout/AppTopbar";
-import VerificationForm from "@/demo/components/VerificationForm";
-import Link from "next/link";
+import VerificationForm from "@/components/VerificationForm";
+import { OtpData } from "@/types/auth";
+import { forgotPassword, handleVerifyOtp } from "@/app/services/auth.services";
+import { Toast } from "primereact/toast";
 
-
-interface ScreenLockData {
-  verificationCode: string;
-  verificationCode1: string;
-  verificationCode2: string;
-  verificationCode3: string;
-  verificationCode4: string;
-}
-interface CancelEventData {
-  // Define any properties you may want to pass when canceling the form
-}
-
-const LoginPage = () => {
+const OtpVerificationPage = () => {
+  const toast = useRef<Toast>(null);
   const { layoutConfig } = useContext(LayoutContext);
   const myState = history.state;
   const router = useRouter();
-
+  const [spinner, setShowspinner] = React.useState(false);
+    const [buttonDisabled, setbuttonDisabled] = React.useState(false);
   const containerClassName = classNames(
     "surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden",
     { "p-input-filled": layoutConfig.inputStyle === "filled" }
   );
-
-  const handleCancel = (data: CancelEventData) => {
-    // Handle cancel logic
+  const handleCancel = () => {
+     router.push("/auth/login");
   };
 
-  const handleVerifyCode = async (data: ScreenLockData) => {
-    const codeOne = data && data.verificationCode1;
-    const codeTwo = data && data.verificationCode2;
-    const codeThree = data && data.verificationCode3;
-    const codeFour = data && data.verificationCode4;
-    const verificationCode = `${codeOne || ""}${codeTwo || ""}${
-      codeThree || ""
-    }${codeFour || ""}`;
-    // try {
-    //   const data = await client.mutate({
-    //     mutation: VERIFY_OTP,
-    //     variables: {
-    //       email: myState && myState?.email,
-    //       otp: parseInt(verificationCode),
-    //     },
-    //   });
-    //   if (data && data?.data && data?.data?.verifyOtp) {
-    //     if (myState && myState?.path === "signup") {
-    //       toast.success("Account successfully verified.");
-    //       router.push("/auth/login");
-    //     } else {
-    //       history.pushState({ token: data?.data?.verifyOtp?.token }, "");
-    //       router.push("/auth/reset_password");
-    //     }
-    //   } else {
-    //     console.log("@", data);
-    //   }
-    // } catch (error) {
-    //   if (error instanceof ApolloError) {
-    //     const errorMessage = error.message; // Extract the error message
-    //     toast.error(errorMessage);
-    //   } else {
-    //     // Handle other types of errors
-    //     console.error("Unexpected Error:", error);
-    //   }
-    // }
+  const handleVerifyCode = async (data: OtpData) => {
+    setShowspinner(true);
+    setbuttonDisabled(true);
+    const verificationCode = `${data?.digit1}${data?.digit2}${data?.digit3}${data?.digit4}`;
+    const reqData = { email: "infoocean8454@gmail.com", otp:  parseInt(verificationCode) };
+    const res = await handleVerifyOtp(reqData);
+    if(res?.success === true){
+        toast.current?.show({severity:"success", summary:"Verification", detail:"Verification successfull!",  life: 2000 });
+        router.push("/auth/login");
+    }else{
+        toast.current?.show({severity:"error", summary:"Verification", detail:"Please enter valid otp!",  life: 2000 });
+        setShowspinner(false);
+        setbuttonDisabled(false);
+    }
   };
   const handle_resend_otp = async () => {
     const email = myState && myState?.email;
-    // try {
-    //   const data = await client.mutate({
-    //     mutation: FORGOT_PASSWORD,
-    //     variables: {
-    //       userEmail: email,
-    //     },
-    //   });
-    //   if (data && data?.data && data?.data?.forgotPassword) {
-    //     toast.success(
-    //       "A verification code has been sent to your email address."
-    //     );
-    //   } else {
-    //     console.log("@");
-    //   }
-    // } catch (error) {
-    //   if (error instanceof ApolloError) {
-    //     const errorMessage = error.message; // Extract the error message
-    //     toast.error(errorMessage);
-    //   } else {
-    //     // Handle other types of errors
-    //     console.error("Unexpected Error:", error);
-    //   }
-    // }
+    const res = await forgotPassword(email);
+    if(res?.success === true){
+      toast.current?.show({severity:"success", summary:"Verification", detail:"Verification OTP sent successfull!",  life: 2000 });
+  }else{
+      toast.current?.show({severity:"error", summary:"Verification", detail:"Please enter valid email!",  life: 2000 });
+    }
   };
 
   const verificationFields = [
-    { label: "", type: "text", name: "verificationCode1", maxLength: 1 },
-    { label: "", type: "text", name: "verificationCode2", maxLength: 1 },
-    { label: "", type: "text", name: "verificationCode3", maxLength: 1 },
-    { label: "", type: "text", name: "verificationCode4", maxLength: 1 },
+    { label: "", type: "text", name: "digit1", maxLength: 1 },
+    { label: "", type: "text", name: "digit2", maxLength: 1 },
+    { label: "", type: "text", name: "digit3", maxLength: 1 },
+    { label: "", type: "text", name: "digit4", maxLength: 1 },
   ];
+  
   return (
-    <div className={containerClassName}>
-          <div className="flex align-items-center justify-content-center">
-              <div className="surface-card p-4 shadow-2 border-round w-full ">
-                  <div className="text-center mb-5">
-                      <img src="/demo/images/blocks/logos/hyper.svg" alt="hyper" height={50} className="mb-3" />
-                      <div className="text-900 text-3xl font-medium mb-3">Welcome To Mango Connect</div>
-                      <span className="text-600 font-medium line-height-3">We have sent a code to you in email</span>
-                  </div>
-                  <VerificationForm
-                    buttonText="Verify"
-                    onCancel={handleCancel}
-                    onSubmit={handleVerifyCode}
-                    fields={verificationFields}
-                  />
-                  <br />
-                  <div>
-                    <div className="flex align-items-right mb-2 ">
-                      <div
-                        className="font-medium no-underline ml-2 text-right cursor-pointer"
-                        style={{ color: "var(--primary-color)" }}
-                        onClick={handle_resend_otp}
-                      >
-                        Resend OTP?
+    <>
+      <div className={containerClassName}>
+            <div className="flex align-items-center justify-content-center">
+                <div className="surface-card p-4 shadow-2 border-round w-full ">
+                    <div className="text-center mb-5">
+                        <img src="/demo/images/blocks/logos/hyper.svg" alt="hyper" height={50} className="mb-3" />
+                        <div className="text-900 text-3xl font-medium mb-3">Welcome To Mango Connect</div>
+                        <span className="text-600 font-medium line-height-3">We have sent a code to your email</span>
+                    </div>
+                    <VerificationForm
+                      buttonText="Verify"
+                      onCancel={handleCancel}
+                      onSubmit={handleVerifyCode}
+                      fields={verificationFields}
+                    />
+                    <br />
+                    <div>
+                      <div className="flex align-items-right mb-2 ">
+                        <div>
+                          We have not received the OTP <strong className="font-medium no-underline ml-1 text-right cursor-pointer"
+                          style={{ color: "var(--primary-color)" }}
+                          onClick={handle_resend_otp}>Resend OTP?</strong> 
+                        </div>
                       </div>
                     </div>
-                  </div>
+                </div>
               </div>
-            </div>
       </div>
+      <Toast ref={toast} />
+    </>
   );
 };
 
-export default LoginPage;
+export default OtpVerificationPage;

@@ -1,24 +1,13 @@
 import React, { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { VerificationFormProps } from "@/types/auth";
 
-interface VerificationField {
-  label: string;
-  type: string;
-  name: string;
-  maxLength?: number;
-}
-interface VerificationFormProps {
-  onCancel: (data: any) => void;
-  buttonText: string;
-  onSubmit: (data: any) => void;
-  fields: VerificationField[];
-}
 const VerificationForm: React.FC<VerificationFormProps> = ({
   buttonText,
-  onCancel,
   onSubmit,
   fields,
+  onCancel
 }) => {
   const [formData, setFormData] = useState<{ [key: string]: string }>({});
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +43,7 @@ const VerificationForm: React.FC<VerificationFormProps> = ({
             className="w-full"
             type="submit"
             label={buttonText}
+
           /> &emsp;
           <Button
             className="w-full p-2"
