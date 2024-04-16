@@ -1,7 +1,7 @@
-import { LoginFormValues, verifyOtpFormValues } from "@/types/auth";
+import { LoginFormValues, resetpasswordFormValues, verifyOtpFormValues } from "@/types/auth";
 import client from "../api/grapgql_api";
 import { GET_AUTHORIZATION_TOKEN } from "../grapgql/grapgql_query/auth_query";
-import { FORGOT_PASSWORD, LOGIN_MUTATION, VERIFY_OTP } from "../grapgql/grapgql_mutation/auth_mutation";
+import { FORGOT_PASSWORD, LOGIN_MUTATION, RESET_PASSWORD, VERIFY_OTP } from "../grapgql/grapgql_mutation/auth_mutation";
 
 const get_authorization_token = async () => {
   try {
@@ -34,7 +34,6 @@ export const handleLogin = async (loginInputData: LoginFormValues) => {
   }
 };
 
-
 export const handleVerifyOtp = async (verifyOtpInputData: verifyOtpFormValues) => {
   try {
     const { data } = await client.mutate({
@@ -52,14 +51,30 @@ export const handleVerifyOtp = async (verifyOtpInputData: verifyOtpFormValues) =
   }
 };
 
-
 //forgot password and resend otp working with this function
-export const forgotPassword = async (email: string) => {
+export const forgotPassword = async (email: string|null) => {
   try {
     const { data } = await client.mutate({
       mutation: FORGOT_PASSWORD,
       variables: {
         userEmail: email,
+      },
+    });
+    if (data) {
+      return { success: true, data: data };
+    }
+  } catch (error) {
+    return { success: false, message: "An error occurred while resend otp in", error: error };
+  }
+};
+
+export const resetPassword = async (inputdata: resetpasswordFormValues) => {
+  try {
+    const { data } = await client.mutate({
+      mutation: RESET_PASSWORD,
+      variables: {
+        token: inputdata?.reset_password_token,
+        password: inputdata?.password
       },
     });
     if (data) {

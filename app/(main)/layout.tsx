@@ -6,16 +6,15 @@ interface AppLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: 'PrimeReact Sakai',
-    description: 'The ultimate collection of design-agnostic, flexible and accessible React UI Components.',
+    title: 'Mango Connect',
+    description: 'A scheduling booking website is a platform that allows users to efficiently manage and schedule appointments, reservations, or bookings for various services or activities. These websites typically provide a user-friendly interface where users can view availability, select a desired date and time, and confirm their booking.',
     robots: { index: false, follow: false },
     viewport: { initialScale: 1, width: 'device-width' },
     openGraph: {
         type: 'website',
-        title: 'PrimeReact SAKAI-REACT',
-        url: 'https://sakai.primereact.org/',
-        description: 'The ultimate collection of design-agnostic, flexible and accessible React UI Components.',
-        images: ['https://www.primefaces.org/static/social/sakai-react.png'],
+        title: 'Mango Connect',
+        url: '/',
+        description: 'A scheduling booking website is a platform that allows users to efficiently manage and schedule appointments, reservations, or bookings for various services or activities. These websites typically provide a user-friendly interface where users can view availability, select a desired date and time, and confirm their booking.',
         ttl: 604800
     },
     icons: {

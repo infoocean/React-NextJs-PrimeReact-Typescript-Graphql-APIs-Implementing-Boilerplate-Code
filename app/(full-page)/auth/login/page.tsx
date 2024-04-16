@@ -42,6 +42,8 @@ const LoginPage = () => {
         if(res?.success === true){
             localStorage.setItem("x-access-token", res?.data?.login?.token);
             reset();
+            setShowspinner(false);
+            setbuttonDisabled(false);
             router.push("/");
         }else{
             toast.current?.show({severity:"error", summary:"login", detail:"Invalid login credentials",  life: 2000 });

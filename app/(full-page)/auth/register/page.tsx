@@ -40,6 +40,9 @@ const RegistrationPage = () => {
       if(res?.success === true){
           toast.current?.show({severity:"success", summary:"Sign Up", detail:"Registration successfull!",  life: 2000 });
           reset();
+          setShowspinner(false);
+          setbuttonDisabled(false);
+          localStorage.setItem("user_email", data.email);
           router.push("/auth/verification");
       }else{
           toast.current?.show({severity:"error", summary:"Sign Up", detail:"Email allready registred!",  life: 2000 });

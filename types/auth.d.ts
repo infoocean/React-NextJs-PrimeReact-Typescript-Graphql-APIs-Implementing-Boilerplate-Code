@@ -13,8 +13,14 @@ interface SignUpFormValues {
 }
 
 interface verifyOtpFormValues {
-    email: string;
+    email: string | null;
     otp:number;
+}
+
+interface resetpasswordFormValues {
+    password: string; 
+    confirmpassword?:string;
+    reset_password_token?: string | null;
 }
 
 interface OtpData {
@@ -36,4 +42,4 @@ interface VerificationFormProps {
     buttonText: string;
     onSubmit: (data: any) => void;
     fields: VerificationField[];
-  }
+}

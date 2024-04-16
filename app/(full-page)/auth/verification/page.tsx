@@ -12,7 +12,6 @@ import { Toast } from "primereact/toast";
 const OtpVerificationPage = () => {
   const toast = useRef<Toast>(null);
   const { layoutConfig } = useContext(LayoutContext);
-  const myState = history.state;
   const router = useRouter();
   const [spinner, setShowspinner] = React.useState(false);
     const [buttonDisabled, setbuttonDisabled] = React.useState(false);
@@ -20,19 +19,25 @@ const OtpVerificationPage = () => {
     "surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden",
     { "p-input-filled": layoutConfig.inputStyle === "filled" }
   );
-  const handleCancel = () => {
-     router.push("/auth/login");
-  };
 
   const handleVerifyCode = async (data: OtpData) => {
     setShowspinner(true);
     setbuttonDisabled(true);
     const verificationCode = `${data?.digit1}${data?.digit2}${data?.digit3}${data?.digit4}`;
-    const reqData = { email: "infoocean8454@gmail.com", otp:  parseInt(verificationCode) };
+    const email = localStorage.getItem('user_email');
+    const verificationType = localStorage.getItem('verification_type');
+    const reqData = { email: email, otp:  parseInt(verificationCode) };
     const res = await handleVerifyOtp(reqData);
     if(res?.success === true){
+        localStorage.setItem('reset_password_token',res?.data?.verifyOtp?.token);
         toast.current?.show({severity:"success", summary:"Verification", detail:"Verification successfull!",  life: 2000 });
-        router.push("/auth/login");
+        setShowspinner(false);
+        setbuttonDisabled(false);
+        if(verificationType && verificationType === "forgotpassword"){
+          router.push("/auth/resetpassword");
+        }else{
+          router.push("/auth/login");
+        }
     }else{
         toast.current?.show({severity:"error", summary:"Verification", detail:"Please enter valid otp!",  life: 2000 });
         setShowspinner(false);
@@ -40,12 +45,12 @@ const OtpVerificationPage = () => {
     }
   };
   const handle_resend_otp = async () => {
-    const email = myState && myState?.email;
+    const email = localStorage.getItem('user_email');
     const res = await forgotPassword(email);
     if(res?.success === true){
-      toast.current?.show({severity:"success", summary:"Verification", detail:"Verification OTP sent successfull!",  life: 2000 });
-  }else{
-      toast.current?.show({severity:"error", summary:"Verification", detail:"Please enter valid email!",  life: 2000 });
+      toast.current?.show({severity:"success", summary:"Verification", detail:"Verification OTP sent successfully !",  life: 2000 });
+  }else{ 
+      toast.current?.show({severity:"error", summary:"Verification", detail:"Please enter valid email !",  life: 2000 });
     }
   };
 
@@ -56,6 +61,10 @@ const OtpVerificationPage = () => {
     { label: "", type: "text", name: "digit4", maxLength: 1 },
   ];
   
+  function handleCancel(data: any): void {
+      router.push("/auth/login");
+  }
+
   return (
     <>
       <div className={containerClassName}>

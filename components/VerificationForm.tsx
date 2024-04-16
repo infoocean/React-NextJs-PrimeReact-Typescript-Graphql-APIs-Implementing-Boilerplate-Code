@@ -6,13 +6,12 @@ import { VerificationFormProps } from "@/types/auth";
 const VerificationForm: React.FC<VerificationFormProps> = ({
   buttonText,
   onSubmit,
-  fields,
-  onCancel
-}) => {
+  fields}) => {
   const [formData, setFormData] = useState<{ [key: string]: string }>({});
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSubmit(formData);

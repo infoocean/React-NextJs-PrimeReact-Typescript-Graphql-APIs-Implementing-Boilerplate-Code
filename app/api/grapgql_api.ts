@@ -18,11 +18,21 @@ const wsLink = new GraphQLWsLink(
 
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem('authorization_token');
+  const logintoken = localStorage.getItem('x-access-token');
+  const authHeaders: any = {};
+  // Set authorization header if token is available
+  if (token) {
+    authHeaders['authorization'] = `Bearer ${token}`;
+  }
+  // Set x-access-token header if logintoken is available
+  if (logintoken) {
+    authHeaders['x-access-token'] = logintoken;
+  }
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : '',
-    },
+      ...authHeaders
+    }
   };
 });
 

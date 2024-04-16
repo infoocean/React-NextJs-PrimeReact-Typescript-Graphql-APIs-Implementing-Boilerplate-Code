@@ -8,70 +8,16 @@ import { Menu } from 'primereact/menu';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ProductService } from '../../components/service/ProductService';
 import { LayoutContext } from '../../layout/context/layoutcontext';
-import Link from 'next/link';
 import { Demo } from '@/types';
-import { ChartData, ChartOptions } from 'chart.js';
-
-const lineData: ChartData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    datasets: [
-        {
-            label: 'First Dataset',
-            data: [65, 59, 80, 81, 56, 55, 40],
-            fill: false,
-            backgroundColor: '#2f4860',
-            borderColor: '#2f4860',
-            tension: 0.4
-        },
-        {
-            label: 'Second Dataset',
-            data: [28, 48, 40, 19, 86, 27, 90],
-            fill: false,
-            backgroundColor: '#00bb7e',
-            borderColor: '#00bb7e',
-            tension: 0.4
-        }
-    ]
-};
+import { getDashboardData } from '../services/dashboard.services';
 
 const Dashboard = () => {
     const [products, setProducts] = useState<Demo.Product[]>([]);
+    const [data, setdata] = useState<any>({});
     const menu1 = useRef<Menu>(null);
     const menu2 = useRef<Menu>(null);
-    const [lineOptions, setLineOptions] = useState<ChartOptions>({});
     const { layoutConfig } = useContext(LayoutContext);
 
-    const applyLightTheme = () => {
-        const lineOptions: ChartOptions = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#495057'
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#495057'
-                    },
-                    grid: {
-                        color: '#ebedef'
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: '#495057'
-                    },
-                    grid: {
-                        color: '#ebedef'
-                    }
-                }
-            }
-        };
-
-        setLineOptions(lineOptions);
-    };
 
     const applyDarkTheme = () => {
         const lineOptions = {
@@ -101,21 +47,14 @@ const Dashboard = () => {
                 }
             }
         };
-
-        setLineOptions(lineOptions);
     };
 
     useEffect(() => {
         ProductService.getProductsSmall().then((data) => setProducts(data));
+        getDashboarddata();
     }, []);
 
-    useEffect(() => {
-        if (layoutConfig.colorScheme === 'light') {
-            applyLightTheme();
-        } else {
-            applyDarkTheme();
-        }
-    }, [layoutConfig.colorScheme]);
+
 
     const formatCurrency = (value: number) => {
         return value?.toLocaleString('en-US', {
@@ -124,6 +63,13 @@ const Dashboard = () => {
         });
     };
 
+    //get dashboard data
+    const getDashboarddata = async () => {
+      const result = await getDashboardData();
+      setdata(JSON.parse(result?.data?.getDashboardData));
+    }
+
+    console.log(data);
     return (
         <div className="grid">
             <div className="col-12 lg:col-6 xl:col-3">
@@ -131,13 +77,13 @@ const Dashboard = () => {
                     <div className="flex justify-content-between mb-3">
                         <div>
                             <span className="block text-500 font-medium mb-3">Orders</span>
-                            <div className="text-900 font-medium text-xl">152</div>
+                            <div className="text-900 font-medium text-xl">{data?.totalOrders}</div>
                         </div>
                         <div className="flex align-items-center justify-content-center bg-blue-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                             <i className="pi pi-shopping-cart text-blue-500 text-xl" />
                         </div>
                     </div>
-                    <span className="text-green-500 font-medium">24 new </span>
+                    <span className="text-green-500 font-medium">{data?.todayOrders?.length} </span>
                     <span className="text-500">since last visit</span>
                 </div>
             </div>
@@ -149,7 +95,7 @@ const Dashboard = () => {
                             <div className="text-900 font-medium text-xl">$2.100</div>
                         </div>
                         <div className="flex align-items-center justify-content-center bg-orange-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <i className="pi pi-map-marker text-orange-500 text-xl" />
+                            <i className="pi pi-wallet text-orange-500 text-xl" />
                         </div>
                     </div>
                     <span className="text-green-500 font-medium">%52+ </span>
@@ -160,36 +106,36 @@ const Dashboard = () => {
                 <div className="card mb-0">
                     <div className="flex justify-content-between mb-3">
                         <div>
-                            <span className="block text-500 font-medium mb-3">Customers</span>
-                            <div className="text-900 font-medium text-xl">28441</div>
+                            <span className="block text-500 font-medium mb-3">Users</span>
+                            <div className="text-900 font-medium text-xl">{data?.totalUsers}</div>
                         </div>
                         <div className="flex align-items-center justify-content-center bg-cyan-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <i className="pi pi-inbox text-cyan-500 text-xl" />
+                            <i className="pi pi-user text-cyan-500 text-xl" />
                         </div>
                     </div>
-                    <span className="text-green-500 font-medium">520 </span>
-                    <span className="text-500">newly registered</span>
+                    <span className="text-green-500 font-medium">{data?.todayRegisteredUsers?.length}</span>
+                    <span className="text-500"> newly registered</span>
                 </div>
             </div>
             <div className="col-12 lg:col-6 xl:col-3">
                 <div className="card mb-0">
                     <div className="flex justify-content-between mb-3">
                         <div>
-                            <span className="block text-500 font-medium mb-3">Comments</span>
-                            <div className="text-900 font-medium text-xl">152 Unread</div>
+                            <span className="block text-500 font-medium mb-3">Schedules</span>
+                            <div className="text-900 font-medium text-xl">{data?.totalSchedules}</div>
                         </div>
                         <div className="flex align-items-center justify-content-center bg-purple-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <i className="pi pi-comment text-purple-500 text-xl" />
+                            <i className="pi pi-calendar text-purple-500 text-xl" />
                         </div>
                     </div>
-                    <span className="text-green-500 font-medium">85 </span>
-                    <span className="text-500">responded</span>
+                    <span className="text-green-500 font-medium">{data?.todaySchedules?.length}</span>
+                    <span className="text-500"> newly schedules</span>
                 </div>
             </div>
 
             <div className="col-12 xl:col-6">
                 <div className="card">
-                    <h5>Recent Sales</h5>
+                    <h5>Recent Orders</h5>
                     <DataTable value={products} rows={5} paginator responsiveLayout="scroll">
                         <Column header="Image" body={(data) => <img className="shadow-2" src={`/demo/images/product/${data.image}`} alt={data.image} width="50" />} />
                         <Column field="name" header="Name" sortable style={{ width: '35%' }} />
@@ -300,9 +246,22 @@ const Dashboard = () => {
             <div className="col-12 xl:col-6">
                 <div className="card">
                     <h5>Sales Overview</h5>
-                    <Chart type="line" data={lineData} options={lineOptions} />
+                    <DataTable value={products} rows={5} paginator responsiveLayout="scroll">
+                        <Column header="Image" body={(data) => <img className="shadow-2" src={`/demo/images/product/${data.image}`} alt={data.image} width="50" />} />
+                        <Column field="name" header="Name" sortable style={{ width: '35%' }} />
+                        <Column field="price" header="Price" sortable style={{ width: '35%' }} body={(data) => formatCurrency(data.price)} />
+                        <Column
+                            header="View"
+                            style={{ width: '15%' }}
+                            body={() => (
+                                <>
+                                    <Button icon="pi pi-search" text />
+                                </>
+                            )}
+                        />
+                    </DataTable>
                 </div>
-
+              
                 <div className="card">
                     <div className="flex align-items-center justify-content-between mb-4">
                         <h5>Notifications</h5>
@@ -367,23 +326,6 @@ const Dashboard = () => {
                             </span>
                         </li>
                     </ul>
-                </div>
-                <div
-                    className="px-4 py-5 shadow-2 flex flex-column md:flex-row md:align-items-center justify-content-between mb-3"
-                    style={{
-                        borderRadius: '1rem',
-                        background: 'linear-gradient(0deg, rgba(0, 123, 255, 0.5), rgba(0, 123, 255, 0.5)), linear-gradient(92.54deg, #1C80CF 47.88%, #FFFFFF 100.01%)'
-                    }}
-                >
-                    <div>
-                        <div className="text-blue-100 font-medium text-xl mt-2 mb-3">TAKE THE NEXT STEP</div>
-                        <div className="text-white font-medium text-5xl">Try PrimeBlocks</div>
-                    </div>
-                    <div className="mt-4 mr-auto md:mt-0 md:mr-0">
-                        <Link href="https://blocks.primereact.org" className="p-button font-bold px-5 py-3 p-button-warning p-button-rounded p-button-raised">
-                            Get Started
-                        </Link>
-                    </div>
                 </div>
             </div>
         </div>
